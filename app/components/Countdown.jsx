@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const Countdown = () => {
   const calculateTimeLeft = () => {
-    const difference = new Date(`2024-06-29`) - new Date();
+    const difference = new Date(`2024-07-29`) - new Date();
     let timeLeft = {};
 
     if (difference > 0) {

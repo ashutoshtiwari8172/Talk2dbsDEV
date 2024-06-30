@@ -4,7 +4,7 @@ import "./globals.css";
 
 
 export const metadata = {
-  title: "tok2dbs",
+  title: "tok2dbsDEV",
   description: "Talk2DB is a simple chat app that uses talk to scientific databases.",
 };
 

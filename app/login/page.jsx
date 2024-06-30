@@ -13,7 +13,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('http://35.238.123.118/users/login/', {
+    const response = await fetch('http://34.123.207.48/users/login/', {
     // const response = await fetch('https://web.tok2dbs.com/users/login/', {
       method: 'POST',
       headers: {
