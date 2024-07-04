@@ -296,6 +296,7 @@
 //           </button>
 //         </div>
 //       </div>
+
 //       <nav className={`h-full flex flex-col bg-gray-100 text-gray-950 p-5 transition-width duration-300 ${expandedtwo ? "w-64" : "w-20"}`}>
 //       {expandedtwo && (
 //           <h2 className="text-2xl font-bold text-center mb-5">Select Model</h2>
@@ -423,6 +424,7 @@
 // };
 
 // export default Page;
+
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -431,6 +433,8 @@ import { useContext, createContext } from "react";
 import { ChevronLast, ChevronFirst } from "lucide-react";
 import { marked } from 'marked';
 import hljs from 'highlight.js';
+import Image from 'next/image';
+import bot from '../../public/images/bot.png'
 
 const Page = () => {
   const [userInput, setUserInput] = useState('');
@@ -441,17 +445,27 @@ const Page = () => {
   const [databaseName, setDatabaseName] = useState(null);
   const [selectedModel, setSelectedModel] = useState('Groq_llm');
   const [startingPrompt, setStartingPrompt] = useState('');
+  const [expanded, setExpanded] = useState(true);
+  const [expandedtwo, setExpandedtwo] = useState(true);
+  const [userGroups, setUserGroups] = useState([]);
   const chatContainerRef = useRef(null);
 
   const router = useRouter();
-
-  const [expanded, setExpanded] = useState(true);
-  const [expandedtwo, setExpandedtwo] = useState(true);
+    const handleToggle = (model) => {
+    setSelectedModel(selectedModel === model ? null : model);
+  };
+  const modelNames = {
+    Groq_llm: 'GROQ',
+    gpt_3_llm: 'GPT-3',
+    gpt_4_llm: 'GPT-4',
+    gpt_4o_llm: 'GPT-4o'
+  };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     setDatabaseId(urlParams.get('id'));
     setDatabaseName(urlParams.get('name'));
+    setUserGroups(JSON.parse(localStorage.getItem('user_groups') || '[]'));
   }, []);
 
   useEffect(() => {
@@ -585,6 +599,7 @@ const Page = () => {
       handleSendMessage();
     }
   };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100 md:flex-row">
       <nav className={`h-full flex flex-col bg-gray-100 text-gray-950 p-5 transition-width duration-300 ${expanded ? "w-64" : "w-20"}`}>
@@ -638,7 +653,7 @@ const Page = () => {
           )}
         </div>
   
-        {expanded && (
+        {/* {expanded && (
           <div className="mt-auto">
             <label htmlFor="model-select" className="block mb-2">Select LLM Model:</label>
             <select
@@ -654,58 +669,48 @@ const Page = () => {
               <option value="gpt_4o_llm">GPT-4o</option>
             </select>
           </div>
-        )}
+        )} */}
       </nav>
   
       <div className="flex flex-col flex-grow">
         <div className="bg-white text-blue-900 p-4 text-center text-xl">
           Chat with <span id="chat-database-name">{databaseName}</span>
-          <div>
-            <textarea
-            value={startingPrompt}
-            onChange={(e) => setStartingPrompt(e.target.value)}
-            placeholder="Type your starting prompt here..."
-            className="w-full md:w-[600px] p-2 border border-blue-900 rounded mb-2 text-sm"
-          />
-          </div>
-          
+          {userGroups.includes('developers') && (
+            <div>
+              <textarea
+                value={startingPrompt}
+                onChange={(e) => setStartingPrompt(e.target.value)}
+                placeholder="Type your starting prompt here..."
+                className="w-full md:w-[600px] p-2 border border-blue-900 rounded mb-2 text-sm"
+              />
+            </div>
+          )}
         </div>
         <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto bg-white flex justify-center  text-right" style={{
           msOverflowStyle: 'none',
           scrollbarWidth: 'none',
         }}>
           <div className="flex flex-col space-y-4">
-            {messages.map((message, index) => (
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`max-w-3xl w-full flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              {!message.isUser && (
+                <Image src={bot} alt="Bot Avatar" className="w-8 h-8 m-3 self-start rounded-full" />
+              )}
               <div
-                key={index}
-                className={`max-w-3xl w-full flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                className={`message p-3 rounded-lg ${
+                  message.isUser ? 'bg-gray-100 text-gray-800' : ' text-gray-800'
+                } text-left`}
               >
-                <div
-                  className={`message p-3 rounded-lg ${message.isUser ? 'bg-blue-900 text-white' : 'bg-gray-200 text-gray-800'} text-left flex items-center`}
-                >
-                  {!message.isUser && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-6 h-6 mr-2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 2.25c-1.16 0-2.12.93-2.12 2.08v.42a1.5 1.5 0 11-3 0v-.42C6.88 3.18 5.92 2.25 4.76 2.25c-1.16 0-2.12.93-2.12 2.08v.42c0 .53-.44.96-.96.96s-.96-.43-.96-.96v-.42c0-2.57 2.1-4.67 4.67-4.67 2.57 0 4.67 2.1 4.67 4.67v.42c0 .53-.44.96-.96.96s-.96-.43-.96-.96v-.42c0-1.15-.96-2.08-2.12-2.08zM21.96 11.25c-.53 0-.96.44-.96.96v.42a4.67 4.67 0 11-9.33 0v-.42c0-.53-.44-.96-.96-.96s-.96.44-.96.96v.42c0 1.15-.96 2.08-2.12 2.08-1.16 0-2.12-.93-2.12-2.08v-.42c0-.53-.44-.96-.96-.96s-.96.44-.96.96v.42c0 2.57 2.1 4.67 4.67 4.67 2.57 0 4.67-2.1 4.67-4.67v-.42c0-.53.44-.96.96-.96s.96.44.96.96v.42a1.5 1.5 0 103 0v-.42c0-.53.44-.96.96-.96s.96.44.96.96v.42c0 2.57 2.1 4.67 4.67 4.67 2.57 0 4.67-2.1 4.67-4.67v-.42c0-.53-.44-.96-.96-.96z"
-                      />
-                    </svg>
-                  )}
-                  {message.content.type === 'image' ? (
-                    <img src={message.content.content} alt="AI response" className="max-w-full " />
-                  ) : (
-                    <div dangerouslySetInnerHTML={{ __html: marked(message.content) }} />
-                  )}
-                </div>
+                {message.content.type === 'image' ? (
+                  <img src={message.content.content} alt="AI response" className="max-w-full" />
+                ) : (
+                  <div dangerouslySetInnerHTML={{ __html: marked(message.content) }} />
+                )}
               </div>
+            </div>
             ))}
           </div>
         </div>
@@ -734,7 +739,7 @@ const Page = () => {
             </button>
           </div>
         </div> */}
-        <div className="p-3 border-t justify-center border-gray-300 bg-white flex">
+        <div className="p-3  justify-center border-gray-300 bg-white flex">
           
           <input
             type="text"
@@ -752,6 +757,67 @@ const Page = () => {
           </button>
         </div>
       </div>
+      <nav className={`h-full flex flex-col bg-gray-100 text-gray-950 p-5 transition-width duration-300 ${expandedtwo ? "w-64" : "w-20"}`}>
+  <div className="flex items-center justify-between mb-5">
+    <button
+      className="flex flex-col items-center"
+      onClick={() => setExpandedtwo((curr) => !curr)}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="currentColor"
+        viewBox="0 0 256 256"
+      >
+        <path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"></path>
+      </svg>
+      <span className="text-sm mt-1">Models</span>
+      
+      {expandedtwo  && <span className="text-sm mt-1"></span>}
+    </button>
+    
+    {expandedtwo && (
+      <h2 className="text-lg font-bold">Select Model</h2>
+    )}
+  </div>
+
+  <div className={`flex-grow ${expandedtwo ? 'block' : 'hidden'}`}>
+    {['Groq_llm', 'gpt_3_llm', 'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
+      <div
+        key={model}
+        className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
+          selectedModel === model ? "bg-blue-200" : ""
+        } ${
+          conversationId !== null ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        onClick={() => {
+          if (conversationId === null) {
+            setSelectedModel(model);
+          }
+        }}
+      >
+        <label className={`flex items-center w-full ${
+          conversationId !== null ? "cursor-not-allowed" : "cursor-pointer"
+        }`}>
+          <div className="relative mr-2">
+            <div
+              className={`block w-8 h-5 rounded-full ${
+                selectedModel === model ? "bg-blue-600" : "bg-gray-300"
+              }`}
+            ></div>
+            <div
+              className={`dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition ${
+                selectedModel === model ? "transform translate-x-3" : ""
+              }`}
+            ></div>
+          </div>
+          <span className="text-sm">{modelNames[model]}</span>
+        </label>
+      </div>
+    ))}
+  </div>
+</nav>
     </div>
   );
 };
