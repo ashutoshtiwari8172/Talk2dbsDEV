@@ -758,9 +758,9 @@ const Page = () => {
         </div>
       </div>
       <nav className={`h-full flex flex-col bg-gray-100 text-gray-950 p-5 transition-width duration-300 ${expandedtwo ? "w-64" : "w-20"}`}>
-  <div className="flex items-center justify-between mb-5">
+  <div className="flex items-start">
     <button
-      className="flex flex-col items-center"
+      className="flex flex-col items-center mr-4"
       onClick={() => setExpandedtwo((curr) => !curr)}
     >
       <svg
@@ -769,53 +769,45 @@ const Page = () => {
         height="24"
         fill="currentColor"
         viewBox="0 0 256 256"
+        className="mb-1"
       >
         <path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"></path>
       </svg>
-      <span className="text-sm mt-1">Models</span>
-      
-      {expandedtwo  && <span className="text-sm mt-1"></span>}
+      <span className="text-xs">Select Model</span>
     </button>
-    
-    {expandedtwo && (
-      <h2 className="text-lg font-bold">Select Model</h2>
-    )}
-  </div>
 
-  <div className={`flex-grow ${expandedtwo ? 'block' : 'hidden'}`}>
-    {['Groq_llm', 'gpt_3_llm', 'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
-      <div
-        key={model}
-        className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
-          selectedModel === model ? "bg-blue-200" : ""
-        } ${
-          conversationId !== null ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        onClick={() => {
-          if (conversationId === null) {
-            setSelectedModel(model);
-          }
-        }}
-      >
-        <label className={`flex items-center w-full ${
-          conversationId !== null ? "cursor-not-allowed" : "cursor-pointer"
-        }`}>
-          <div className="relative mr-2">
-            <div
-              className={`block w-8 h-5 rounded-full ${
-                selectedModel === model ? "bg-blue-600" : "bg-gray-300"
-              }`}
-            ></div>
-            <div
-              className={`dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition ${
-                selectedModel === model ? "transform translate-x-3" : ""
-              }`}
-            ></div>
+    <div className={`flex-grow ${expandedtwo ? 'block' : 'hidden'}`}>
+      {expandedtwo && (
+        <h2 className="text-lg font-bold mb-2">Select Model</h2>
+      )}
+      <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
+        {['Groq_llm', 'gpt_3_llm', 'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
+          <div
+            key={model}
+            className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
+              selectedModel === model ? "bg-blue-200" : ""
+            }`}
+            onClick={() => setSelectedModel(model)}
+          >
+            <label className="flex items-center cursor-pointer w-full">
+              <div className="relative mr-2">
+                <div
+                  className={`block w-8 h-5 rounded-full ${
+                    selectedModel === model ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                ></div>
+                <div
+                  className={`dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition ${
+                    selectedModel === model ? "transform translate-x-3" : ""
+                  }`}
+                ></div>
+              </div>
+              <span className="text-sm">{modelNames[model]}</span>
+            </label>
           </div>
-          <span className="text-sm">{modelNames[model]}</span>
-        </label>
+        ))}
       </div>
-    ))}
+    </div>
   </div>
 </nav>
     </div>
