@@ -14,8 +14,8 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('http://35.238.123.118/users/register/', {
-    // const response = await fetch('https://web.tok2dbs.com/users/register/', {
+   
+    const response = await fetch('https://dev.tok2dbs.com/users/register/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
