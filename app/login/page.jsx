@@ -94,7 +94,7 @@ function Login() {
     setIsLoading(true);  // Show the loader spinner
 
     try {
-      const response = await fetch('https://dev.talk2dbs.com/users/login/', {
+      const response = await fetch('https://dev.tok2dbs.com/users/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

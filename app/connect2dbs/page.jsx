@@ -9,7 +9,7 @@ const page = () => {
             const token = localStorage.getItem('token');  // Get the token from local storage
 
             // const response = await fetch('https://web.tok2dbs.com/chatbot/api/databases/', {
-                const response = await fetch('https://dev.talk2dbs.com/chatbot/api/databases/', {
+                const response = await fetch('https://dev.tok2dbs.com/chatbot/api/databases/', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

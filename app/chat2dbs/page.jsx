@@ -65,7 +65,7 @@ const Page = () => {
   const sendMessage = async (userMessage) => {
     const token = localStorage.getItem('token');
 
-    const response = await fetch('https://dev.talk2dbs.com/chatbot/api/ask/', {
+    const response = await fetch('https://dev.tok2dbs.com/chatbot/api/ask/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const Page = () => {
   const fetchConversations = async () => {
     const token = localStorage.getItem('token');
 
-    const response = await fetch('https://dev.talk2dbs.com/chatbot/api/list_conversations/', {
+    const response = await fetch('https://dev.tok2dbs.com/chatbot/api/list_conversations/', {
       method: 'GET',
       headers: {
         Authorization: `Token ${token}`,
@@ -118,7 +118,7 @@ const Page = () => {
   const loadConversation = async (id) => {
     const token = localStorage.getItem('token');
 
-    const response = await fetch(`https://dev.talk2dbs.com/chatbot/api/get_conversation/${id}/`, {
+    const response = await fetch(`https://dev.tok2dbs.com/chatbot/api/get_conversation/${id}/`, {
       method: 'GET',
       headers: {
         Authorization: `Token ${token}`,
@@ -143,7 +143,7 @@ const Page = () => {
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
 
-    const response = await fetch('https://dev.talk2dbs.com/users/logout/', {
+    const response = await fetch('https://dev.tok2dbs.com/users/logout/', {
       method: 'POST',
       headers: {
         Authorization: `Token ${token}`,
