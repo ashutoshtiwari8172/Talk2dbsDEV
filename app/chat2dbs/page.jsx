@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useContext, createContext } from "react";
 import { ChevronLast, ChevronFirst } from "lucide-react";
 import { marked } from 'marked';
 import hljs from 'highlight.js';
@@ -25,11 +24,13 @@ const Page = () => {
   const chatContainerRef = useRef(null);
 
   const router = useRouter();
-    const handleToggle = (model) => {
+
+  const handleToggle = (model) => {
     setSelectedModel(selectedModel === model ? null : model);
   };
+
   const modelNames = {
-    Groq_llm: 'GROQ',
+    Groq_llm: 'LAMMA',
     gpt_3_llm: 'GPT-3',
     gpt_4_llm: 'GPT-4',
     gpt_4o_llm: 'GPT-4o'
@@ -40,10 +41,10 @@ const Page = () => {
     setDatabaseId(urlParams.get('id'));
     setDatabaseName(urlParams.get('name'));
     setUserGroups(JSON.parse(localStorage.getItem('user_groups') || '[]'));
+    fetchConversations();
   }, []);
 
   useEffect(() => {
-    fetchConversations();
     if (conversationId) {
       loadConversation(conversationId);
     }
@@ -55,6 +56,53 @@ const Page = () => {
     }
   }, [messages]);
 
+  const fetchConversations = async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://dev.tok2dbs.com/chatbot/api/list_conversations/', {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const fetchedConversations = await response.json();
+      setConversations(fetchedConversations.reverse());
+    } else {
+      console.error('Failed to fetch conversations');
+    }
+  };
+
+  const selectConversation = async (id) => {
+    setConversationId(id);
+    setSelectedModel('Groq_llm');
+    setStartingPrompt('');
+    await loadConversation(id);
+  };
+
+  const loadConversation = async (id) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`https://dev.tok2dbs.com/chatbot/api/get_conversation/${id}/`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const conversation = await response.json();
+      setMessages([]);
+      conversation.user_messages.forEach((msg, index) => {
+        addMessageToChat(msg, true);
+        if (conversation.ai_responses[index]) {
+          addMessageToChat(conversation.ai_responses[index], false);
+        }
+      });
+    } else {
+      console.error('Failed to fetch conversation');
+    }
+  };
+
   const addMessageToChat = (message, isUser = false) => {
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -64,7 +112,6 @@ const Page = () => {
 
   const sendMessage = async (userMessage) => {
     const token = localStorage.getItem('token');
-
     const response = await fetch('https://dev.tok2dbs.com/chatbot/api/ask/', {
       method: 'POST',
       headers: {
@@ -91,58 +138,8 @@ const Page = () => {
     }
   };
 
-  const fetchConversations = async () => {
-    const token = localStorage.getItem('token');
-
-    const response = await fetch('https://dev.tok2dbs.com/chatbot/api/list_conversations/', {
-      method: 'GET',
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      const fetchedConversations = await response.json();
-      setConversations(fetchedConversations.reverse());
-    } else {
-      console.error('Failed to fetch conversations');
-    }
-  };
-
-  const selectConversation = async (id) => {
-    setConversationId(id);
-    setStartingPrompt('');
-    await loadConversation(id);
-  };
-
-  const loadConversation = async (id) => {
-    const token = localStorage.getItem('token');
-
-    const response = await fetch(`https://dev.tok2dbs.com/chatbot/api/get_conversation/${id}/`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      const conversation = await response.json();
-      setMessages([]);
-
-      for (let i = 0; i < conversation.user_messages.length; i++) {
-        addMessageToChat(conversation.user_messages[i], true);
-        if (conversation.ai_responses[i]) {
-          addMessageToChat(conversation.ai_responses[i], false);
-        }
-      }
-    } else {
-      console.error('Failed to fetch conversation');
-    }
-  };
-
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
-
     const response = await fetch('https://dev.tok2dbs.com/users/logout/', {
       method: 'POST',
       headers: {
@@ -188,11 +185,11 @@ const Page = () => {
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>
         </div>
-  
+
         <a href='/connect2dbs' className="mt-5 justify-center ml-2">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" className={`h-[20px] mt-5 ${expanded ? "ml-20" : "ml-0"}`}><path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg>
         </a>
-  
+
         <button
           className="flex justify-center my-5 border border-blue-900 text-blue-900 px-4 py-2 rounded hover:border-blue-600 hover:text-blue-600 focus:outline-none focus:border-blue-600 focus:text-blue-600"
           onClick={() => { setConversationId(null); setMessages([]); }}
@@ -202,7 +199,7 @@ const Page = () => {
           </svg>
           {expanded && <span className="ml-2">New Chat</span>}
         </button>
-  
+
         <button
           className="flex justify-center mb-5 border border-blue-900 text-blue-900 px-4 py-2 rounded hover:border-blue-600 hover:text-blue-600 focus:outline-none focus:border-blue-600 focus:text-blue-600"
           onClick={handleLogout}
@@ -210,7 +207,7 @@ const Page = () => {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className ="h-5 w-5 shrink-0"><path fill="currentColor" fillRule="evenodd" d="M6 4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4a1 1 0 1 1 0 2H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h4a1 1 0 1 1 0 2zm9.293 3.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414-1.414L17.586 13H11a1 1 0 1 1 0-2h6.586l-2.293-2.293a1 1 0 0 1 0-1.414" clipRule="evenodd"></path></svg> 
           {expanded && <span className='ml-2'>Logout</span>}
         </button>
-  
+
         <div className="mb-5 max-h-screen overflow-y-auto">
           {conversations.length === 0 ? (
             <div>No chats yet.</div>
@@ -226,26 +223,8 @@ const Page = () => {
             ))
           )}
         </div>
-  
-        {/* {expanded && (
-          <div className="mt-auto">
-            <label htmlFor="model-select" className="block mb-2">Select LLM Model:</label>
-            <select
-              id="model-select"
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              disabled={conversationId !== null}
-              className="w-full p-2 border rounded"
-            >
-              <option value="Groq_llm">GROQ</option>
-              <option value="gpt_3_llm">GPT-3</option>
-              <option value="gpt_4_llm">GPT-4</option>
-              <option value="gpt_4o_llm">GPT-4o</option>
-            </select>
-          </div>
-        )} */}
       </nav>
-  
+
       <div className="flex flex-col flex-grow">
         <div className="bg-white text-blue-900 p-4 text-center text-xl">
           Chat with <span id="chat-database-name">{databaseName}</span>
@@ -288,33 +267,8 @@ const Page = () => {
             ))}
           </div>
         </div>
-  
-        {/* <div className="p-3 justify-center border-gray-300 bg-white flex flex-col">
-          <textarea
-            value={startingPrompt}
-            onChange={(e) => setStartingPrompt(e.target.value)}
-            placeholder="Type your starting prompt here..."
-            className="w-full md:w-[600px] p-2 border border-blue-900 rounded mb-2 text-sm"
-          />
-          <div className="flex">
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your message here..."
-              className="w-full md:w-[600px] p-2 border border-blue-900 rounded-full text-sm"
-            />
-            <button
-              onClick={handleSendMessage}
-              className="ml-3 px-4 py-2 border border-blue-900 text-blue-900 rounded-full hover:border-blue-600 hover:text-blue-600 focus:outline-none focus:border-blue-600 focus:text-blue-600"
-            >
-              Submit
-            </button>
-          </div>
-        </div> */}
+
         <div className="p-3  justify-center border-gray-300 bg-white flex">
-          
           <input
             type="text"
             value={userInput}
@@ -331,6 +285,8 @@ const Page = () => {
           </button>
         </div>
       </div>
+
+
       <nav className={`h-full flex flex-col bg-gray-100 text-gray-950 p-5 transition-width duration-300 ${expandedtwo ? "w-64" : "w-20"}`}>
   <div className="flex items-start">
     <button

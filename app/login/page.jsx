@@ -78,20 +78,20 @@
 
 // export default Login;
 "use client"
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';  // Import the useRouter hook from next/navigation
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isPopupVisible, setIsPopupVisible] = useState(false);  // State for popup visibility
-  const [isLoading, setIsLoading] = useState(false);  // State for loading spinner
-  const router = useRouter();  // Initialize the router
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);  // Show the loader spinner
+    setIsLoading(true);
 
     try {
       const response = await fetch('https://dev.tok2dbs.com/users/login/', {
@@ -106,18 +106,24 @@ function Login() {
       if (response.ok) {
         setMessage('Login successful!');
         localStorage.setItem('token', data.token);
-        router.push('/connect2dbs');  // Redirect to the connectToDB page
+        localStorage.setItem('user_groups', JSON.stringify(data.group_names));
+        console.log('user groups', data.group_names);
+        router.push('/connect2dbs');
       } else {
         setMessage(`Error: ${data.message}`);
-        setIsPopupVisible(true);  // Show the popup if there's an error
+        setIsPopupVisible(true);
       }
     } catch (error) {
       setMessage('Server is down for maintenance. Please try again later.');
-      setIsPopupVisible(true);  // Show the popup if fetch fails
+      setIsPopupVisible(true);
     } finally {
-      setIsLoading(false);  // Hide the loader spinner
+      setIsLoading(false);
     }
   };
+
+  // useEffect(() => {
+  //   // You can add any additional initialization logic here if needed
+  // }, []);
 
   return (
     <div className="flex items-center justify-center h-screen">
@@ -155,14 +161,13 @@ function Login() {
           <button
             type="submit"
             className={`w-full py-2 px-4 rounded-md text-white font-semibold focus:outline-none ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-900 focus:bg-blue-700'}`}
-            disabled={isLoading}  // Disable the button while loading
+            disabled={isLoading}
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         {message && !isPopupVisible && <p className="text-center text-red-500 mt-4">{message}</p>}
 
-        {/* Popup for server down message */}
         {isPopupVisible && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-md shadow-md">
@@ -178,7 +183,6 @@ function Login() {
           </div>
         )}
 
-        {/* Loader Spinner */}
         {isLoading && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 animate-spin" style={{ borderTopColor: '#3498db' }}></div>
