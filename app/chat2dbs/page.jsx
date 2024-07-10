@@ -16,7 +16,7 @@ const Page = () => {
   const [conversations, setConversations] = useState([]);
   const [databaseId, setDatabaseId] = useState(null);
   const [databaseName, setDatabaseName] = useState(null);
-  const [selectedModel, setSelectedModel] = useState('Groq_llm');
+  const [selectedModel, setSelectedModel] = useState('gpt_3_llm');
   const [startingPrompt, setStartingPrompt] = useState('');
   const [expanded, setExpanded] = useState(true);
   const [expandedtwo, setExpandedtwo] = useState(true);
@@ -30,8 +30,8 @@ const Page = () => {
   };
 
   const modelNames = {
-    Groq_llm: 'LAMMA',
     gpt_3_llm: 'GPT-3',
+    Groq_llm: 'LAMMA',
     gpt_4_llm: 'GPT-4',
     gpt_4o_llm: 'GPT-4o'
   };
@@ -75,7 +75,7 @@ const Page = () => {
 
   const selectConversation = async (id) => {
     setConversationId(id);
-    setSelectedModel('Groq_llm');
+    setSelectedModel('gpt_3_llm');
     setStartingPrompt('');
     await loadConversation(id);
   };
@@ -268,7 +268,7 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="p-3  justify-center border-gray-300 bg-white flex">
+        <div className="px-3  justify-center border-gray-300 bg-white flex">
           <input
             type="text"
             value={userInput}
@@ -283,6 +283,9 @@ const Page = () => {
           >
             Submit
           </button>
+        </div>
+        <div className='bg-white text-gray-600 text-center'>
+        <span >tok2dbs can make mistakes. Check important info</span>
         </div>
       </div>
 
@@ -311,7 +314,7 @@ const Page = () => {
         <h2 className="text-lg font-bold mb-2">Select Model</h2>
       )}
       <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
-        {['Groq_llm', 'gpt_3_llm', 'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
+        {[ 'gpt_3_llm', 'Groq_llm',  'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
           <div
             key={model}
             className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
