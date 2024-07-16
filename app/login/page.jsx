@@ -89,6 +89,13 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/connect2dbs');
+    }
+  }, [router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -120,10 +127,6 @@ function Login() {
       setIsLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   // You can add any additional initialization logic here if needed
-  // }, []);
 
   return (
     <div className="flex items-center justify-center h-screen">

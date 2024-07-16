@@ -58,11 +58,19 @@ const Page = () => {
 
   const fetchConversations = async () => {
     const token = localStorage.getItem('token');
+    const selectedDbId = localStorage.getItem('selectedDatabaseId');
+
+    console.log('Id', selectedDbId);
+
     const response = await fetch('https://dev.tok2dbs.com/chatbot/api/list_conversations/', {
-      method: 'GET',
+      method: 'POST',
       headers: {
-        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`
       },
+      body: JSON.stringify({
+        database_id: selectedDbId
+      })
     });
 
     if (response.ok) {
