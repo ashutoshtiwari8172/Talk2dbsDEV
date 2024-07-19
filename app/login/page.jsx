@@ -1,32 +1,51 @@
 // "use client"
-// import React, { useState } from 'react';
-// import { useRouter } from 'next/navigation';  // Import the useRouter hook from next/navigation
+// import React, { useState, useEffect } from 'react';
+// import { useRouter } from 'next/navigation';
 
 // function Login() {
 //   const [username, setUsername] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [message, setMessage] = useState('');
-//   const router = useRouter();  // Initialize the router
+//   const [isPopupVisible, setIsPopupVisible] = useState(false);
+//   const [isLoading, setIsLoading] = useState(false);
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     const token = localStorage.getItem('token');
+//     if (token) {
+//       router.push('/connect2dbs');
+//     }
+//   }, [router]);
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     setIsLoading(true);
 
-//     const response = await fetch('http://34.123.207.48/users/login/', {
-   
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ username, password }),
-//     });
+//     try {
+//       const response = await fetch('https://dev.tok2dbs.com/users/login/', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ username, password }),
+//       });
 
-//     const data = await response.json();
-//     if (response.ok) {
-//       setMessage('Login successful!');
-//       localStorage.setItem('token', data.token);
-//       router.push('/connect2dbs');  // Redirect to the connectToDB page
-//     } else {
-//       setMessage(`Error: ${data.message}`);
+//       const data = await response.json();
+//       if (response.ok) {
+//         setMessage('Login successful!');
+//         localStorage.setItem('token', data.token);
+//         localStorage.setItem('user_groups', JSON.stringify(data.group_names));
+//         console.log('user groups', data.group_names);
+//         router.push('/connect2dbs');
+//       } else {
+//         setMessage(`Error: ${data.message}`);
+//         setIsPopupVisible(true);
+//       }
+//     } catch (error) {
+//       setMessage('Server is down for maintenance. Please try again later.');
+//       setIsPopupVisible(true);
+//     } finally {
+//       setIsLoading(false);
 //     }
 //   };
 
@@ -65,12 +84,34 @@
 //           </div>
 //           <button
 //             type="submit"
-//             className="w-full py-2 px-4 bg-blue-700 rounded-md text-white font-semibold hover:bg-blue-900 focus:outline-none focus:bg-blue-700"
+//             className={`w-full py-2 px-4 rounded-md text-white font-semibold focus:outline-none ${isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-700 hover:bg-blue-900 focus:bg-blue-700'}`}
+//             disabled={isLoading}
 //           >
-//             Login
+//             {isLoading ? 'Logging in...' : 'Login'}
 //           </button>
 //         </form>
-//         {message && <p className="text-center text-red-500 mt-4">{message}</p>}
+//         {message && !isPopupVisible && <p className="text-center text-red-500 mt-4">{message}</p>}
+
+//         {isPopupVisible && (
+//           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+//             <div className="bg-white p-6 rounded-md shadow-md">
+//               <h2 className="text-xl font-semibold mb-4">Error</h2>
+//               <p>{message}</p>
+//               <button
+//                 onClick={() => setIsPopupVisible(false)}
+//                 className="mt-4 py-2 px-4 bg-red-500 text-white rounded-md"
+//               >
+//                 Close
+//               </button>
+//             </div>
+//           </div>
+//         )}
+
+//         {isLoading && (
+//           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+//             <div className="ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16 animate-spin" style={{ borderTopColor: '#3498db' }}></div>
+//           </div>
+//         )}
 //       </div>
 //     </div>
 //   );
@@ -110,17 +151,25 @@ function Login() {
       });
 
       const data = await response.json();
+      console.log('Response data:', data);  // Log the response data
+
       if (response.ok) {
-        setMessage('Login successful!');
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user_groups', JSON.stringify(data.group_names));
-        console.log('user groups', data.group_names);
-        router.push('/connect2dbs');
+        if (data.token && data.group_names) {  // Ensure these fields exist
+          setMessage('Login successful!');
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user_groups', JSON.stringify(data.group_names));
+          console.log('user groups', data.group_names);
+          router.push('/connect2dbs');
+        } else {
+          throw new Error('Invalid response format');
+        }
       } else {
+        console.error('Error response:', data);  // Log error response
         setMessage(`Error: ${data.message}`);
         setIsPopupVisible(true);
       }
     } catch (error) {
+      console.error('Catch error:', error);  // Log catch error
       setMessage('Server is down for maintenance. Please try again later.');
       setIsPopupVisible(true);
     } finally {
