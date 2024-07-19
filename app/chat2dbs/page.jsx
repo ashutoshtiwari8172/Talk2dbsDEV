@@ -8,8 +8,13 @@ import hljs from 'highlight.js';
 import Image from 'next/image';
 import bot from '../../public/images/bot.png'
 import bot2 from '../../public/images/image.png'
+import dynamic from 'next/dynamic';
+const useSessionCheck = dynamic(() => import('../components/hooks/useSessionCheck'), { ssr: false });
+const useAutoLogout = dynamic(() => import('../components/hooks/useAutoLogout'), { ssr: false });
 
 const Page = () => {
+  useSessionCheck();
+    useAutoLogout();
   const [userInput, setUserInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(null);

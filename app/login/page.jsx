@@ -158,6 +158,7 @@ function Login() {
           setMessage('Login successful!');
           localStorage.setItem('token', data.token);
           localStorage.setItem('user_groups', JSON.stringify(data.group_names));
+          localStorage.setItem('sessionExpiry', Date.now() + 3600000); // 1 hour session
           console.log('user groups', data.group_names);
           router.push('/connect2dbs');
         } else {

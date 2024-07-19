@@ -1,7 +1,16 @@
 "use client"
 import React, { useEffect, useState } from 'react';
+// import useSessionCheck from '../components/hooks/useSessionCheck';
+// import useAutoLogout from '../components/hooks/useAutoLogout';
+import dynamic from 'next/dynamic';
+
+const useSessionCheck = dynamic(() => import('../components/hooks/useSessionCheck'), { ssr: false });
+const useAutoLogout = dynamic(() => import('../components/hooks/useAutoLogout'), { ssr: false });
 
 const page = () => {
+
+    useSessionCheck();
+    useAutoLogout();
     const [databases, setDatabases] = useState([]);
 
     useEffect(() => {
