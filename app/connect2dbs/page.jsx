@@ -1,71 +1,164 @@
-"use client"
-import React, { useEffect, useState } from 'react';
-// import useSessionCheck from '../components/hooks/useSessionCheck';
-// import useAutoLogout from '../components/hooks/useAutoLogout';
-import dynamic from 'next/dynamic';
+// "use client"
+// import React, { useEffect, useState } from 'react';
+// // import useSessionCheck from '../components/hooks/useSessionCheck';
+// // import useAutoLogout from '../components/hooks/useAutoLogout';
+// // import dynamic from 'next/dynamic';
 
-const useSessionCheck = dynamic(() => import('../components/hooks/useSessionCheck'), { ssr: false });
-const useAutoLogout = dynamic(() => import('../components/hooks/useAutoLogout'), { ssr: false });
+// // const useSessionCheck = dynamic(() => import('../components/hooks/useSessionCheck'), { ssr: false });
+// // const useAutoLogout = dynamic(() => import('../components/hooks/useAutoLogout'), { ssr: false });
 
-const page = () => {
+// const page = () => {
 
-    useSessionCheck();
-    useAutoLogout();
-    const [databases, setDatabases] = useState([]);
+//     // useSessionCheck();
+//     // useAutoLogout();
+//     const [databases, setDatabases] = useState([]);
 
-    useEffect(() => {
-        async function fetchDatabases() {
-            const token = localStorage.getItem('token');  // Get the token from local storage
+//     useEffect(() => {
+//         async function fetchDatabases() {
+//             const token = localStorage.getItem('token');  // Get the token from local storage
 
            
-                const response = await fetch('https://dev.tok2dbs.com/chatbot/api/databases/', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Token ${token}`  // Include the token in the headers
-                }
-            });
+//                 const response = await fetch('https://dev.tok2dbs.com/chatbot/api/databases/', {
+//                 method: 'GET',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Authorization': `Token ${token}`  // Include the token in the headers
+//                 }
+//             });
 
-            const data = await response.json();
-            setDatabases(data);
+//             const data = await response.json();
+//             setDatabases(data);
+//         }
+
+//         fetchDatabases();
+//     }, []);
+
+//     return (
+//         <div className="flex items-center justify-center min-h-screen bg-gray-100">
+//         <div>
+//             <h1 className="text-3xl font-bold mb-8 text-center">Chat With Databases</h1>
+//             <div id="database-container" className="grid gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 w-11/12 max-w-5xl">
+//                 {databases.map(db => (
+//                     <a key={db.database_id} href={`chatbot.html?id=${db.database_id}&name=${db.database_name}`} className={`database-card bg-white rounded-lg p-6 shadow-lg flex flex-col items-center transition-transform transform hover:scale-105 text-gray-900 no-underline ${!db.status && 'opacity-50 cursor-not-allowed'}`} onClick={(e) => !db.status && e.preventDefault()}>
+//                         <span className="database-name font-bold text-lg mb-4">{db.database_name}</span>
+//                         {db.status ? (
+//                             <button
+//                                 className="connect-button py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+//                                 onClick={(e) => {
+//                                     e.preventDefault(); // Prevent the default link click behavior
+//                                     localStorage.setItem('selectedDatabaseId', db.database_id);
+//                                     window.location.href = `/chat2dbs?id=${db.database_id}&name=${db.database_name}`; // Navigate to the link
+//                                 }}
+//                             >
+//                                 Connect
+//                             </button>
+//                         ) : (
+//                             <button
+//                                 className="connect-button py-2 px-4 bg-gray-500 text-white rounded cursor-not-allowed"
+//                                 disabled
+//                             >
+//                                 Unavailable
+//                             </button>
+//                         )}
+//                     </a>
+//                 ))}
+//             </div>
+//         </div>
+//     </div>
+//         );
+// };
+
+// export default page;
+"use client"
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+const Connect2DBs = () => {
+  const [databases, setDatabases] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchDatabases() {
+      const token = localStorage.getItem('token');  // Get the token from local storage
+
+      if (!token) {
+        setErrorMessage('No token found, redirecting to login...');
+        setTimeout(() => router.push('/login'), 2000);
+        return;
+      }
+
+      try {
+        const response = await fetch('https://dev.tok2dbs.com/chatbot/api/databases/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`,  // Include the token in the headers
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            setErrorMessage('Invalid credentials, redirecting to login...');
+            setTimeout(() => {
+              localStorage.removeItem('token');
+              router.push('/login');
+            }, 2000);
+          } else {
+            setErrorMessage(`Error: ${response.statusText}`);
+          }
+          return;
         }
 
-        fetchDatabases();
-    }, []);
+        const data = await response.json();
+        setDatabases(data);
+      } catch (error) {
+        setErrorMessage('Failed to fetch databases. Please try again later.');
+      }
+    }
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div>
-            <h1 className="text-3xl font-bold mb-8 text-center">Chat With Databases</h1>
-            <div id="database-container" className="grid gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 w-11/12 max-w-5xl">
-                {databases.map(db => (
-                    <a key={db.database_id} href={`chatbot.html?id=${db.database_id}&name=${db.database_name}`} className={`database-card bg-white rounded-lg p-6 shadow-lg flex flex-col items-center transition-transform transform hover:scale-105 text-gray-900 no-underline ${!db.status && 'opacity-50 cursor-not-allowed'}`} onClick={(e) => !db.status && e.preventDefault()}>
-                        <span className="database-name font-bold text-lg mb-4">{db.database_name}</span>
-                        {db.status ? (
-                            <button
-                                className="connect-button py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                onClick={(e) => {
-                                    e.preventDefault(); // Prevent the default link click behavior
-                                    localStorage.setItem('selectedDatabaseId', db.database_id);
-                                    window.location.href = `/chat2dbs?id=${db.database_id}&name=${db.database_name}`; // Navigate to the link
-                                }}
-                            >
-                                Connect
-                            </button>
-                        ) : (
-                            <button
-                                className="connect-button py-2 px-4 bg-gray-500 text-white rounded cursor-not-allowed"
-                                disabled
-                            >
-                                Unavailable
-                            </button>
-                        )}
-                    </a>
-                ))}
-            </div>
+    fetchDatabases();
+  }, [router]);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div>
+        <h1 className="text-3xl font-bold mb-8 text-center">Chat With Databases</h1>
+        {errorMessage && <p className="text-red-500 text-center mb-4">{errorMessage}</p>}
+        <div id="database-container" className="grid gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 w-11/12 max-w-5xl">
+          {databases.map(db => (
+            <a
+              key={db.database_id}
+              href={`chatbot.html?id=${db.database_id}&name=${db.database_name}`}
+              className={`database-card bg-white rounded-lg p-6 shadow-lg flex flex-col items-center transition-transform transform hover:scale-105 text-gray-900 no-underline ${!db.status && 'opacity-50 cursor-not-allowed'}`}
+              onClick={(e) => !db.status && e.preventDefault()}
+            >
+              <span className="database-name font-bold text-lg mb-4">{db.database_name}</span>
+              {db.status ? (
+                <button
+                  className="connect-button py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent the default link click behavior
+                    localStorage.setItem('selectedDatabaseId', db.database_id);
+                    window.location.href = `/chat2dbs?id=${db.database_id}&name=${db.database_name}`; // Navigate to the link
+                  }}
+                >
+                  Connect
+                </button>
+              ) : (
+                <button
+                  className="connect-button py-2 px-4 bg-gray-500 text-white rounded cursor-not-allowed"
+                  disabled
+                >
+                  Unavailable
+                </button>
+              )}
+            </a>
+          ))}
         </div>
+      </div>
     </div>
-        );
+  );
 };
 
-export default page;
+export default Connect2DBs;
