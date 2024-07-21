@@ -38,7 +38,8 @@ const Page = () => {
     gpt_3_llm: 'GPT-3',
     Groq_llm: 'LAMMA',
     gpt_4_llm: 'GPT-4',
-    gpt_4o_llm: 'GPT-4o'
+    gpt_4o_llm: 'GPT-4o',
+    gpt_4o_mini_llm:'GPT-4o-mini'
   };
 
   useEffect(() => {
@@ -220,7 +221,7 @@ const Page = () => {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" className ="h-5 w-5 shrink-0"><path fill="currentColor" fillRule="evenodd" d="M6 4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4a1 1 0 1 1 0 2H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h4a1 1 0 1 1 0 2zm9.293 3.293a1 1 0 0 1 1.414 0l4 4a1 1 0 0 1 0 1.414l-4 4a1 1 0 0 1-1.414-1.414L17.586 13H11a1 1 0 1 1 0-2h6.586l-2.293-2.293a1 1 0 0 1 0-1.414" clipRule="evenodd"></path></svg> 
           {expanded && <span className='ml-2'>Logout</span>}
         </button>
-
+ 
         <div className="mb-5 max-h-screen overflow-y-auto">
           {conversations.length === 0 ? (
             <div>No chats yet.</div>
@@ -327,7 +328,7 @@ const Page = () => {
         <h2 className="text-lg font-bold mb-2">Select Model</h2>
       )}
       <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
-        {[ 'gpt_3_llm', 'Groq_llm',  'gpt_4_llm', 'gpt_4o_llm'].map((model) => (
+        {[ 'gpt_3_llm', 'Groq_llm',  'gpt_4_llm', 'gpt_4o_llm','gpt_4o_mini_llm'].map((model) => (
           <div
             key={model}
             className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
