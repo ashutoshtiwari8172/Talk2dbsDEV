@@ -298,7 +298,7 @@ const Page = () => {
             Submit
           </button>
         </div>
-        <div className='bg-white text-gray-600 text-center'>
+        <div className='bg-white text-xs text-gray-600 text-center'>
         <span >tok2dbs can make mistakes. Check important info</span>
         </div>
       </div>
