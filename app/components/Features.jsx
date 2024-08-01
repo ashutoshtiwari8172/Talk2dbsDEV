@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import TCGA from '../../public/images/TCGA.png';
 import PubChem from '../../public/images/pubChem.png';
-import GDSC from '../../public/images/cancerrxgene_logo.png';
+import GDSC from '../../public/images/gdsc.png';
 import GEO from '../../public/images/geo_main.gif';
 
 import React from 'react';

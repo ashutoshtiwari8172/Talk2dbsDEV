@@ -21,7 +21,7 @@ const Page = () => {
   const [conversations, setConversations] = useState([]);
   const [databaseId, setDatabaseId] = useState(null);
   const [databaseName, setDatabaseName] = useState(null);
-  const [selectedModel, setSelectedModel] = useState('gpt_3_llm');
+  const [selectedModel, setSelectedModel] = useState('gpt_4o_mini_llm');
   const [startingPrompt, setStartingPrompt] = useState('');
   const [expanded, setExpanded] = useState(true);
   const [expandedtwo, setExpandedtwo] = useState(true);
@@ -35,7 +35,7 @@ const Page = () => {
   };
 
   const modelNames = {
-    gpt_3_llm: 'GPT-3',
+    
     Groq_llm: 'LAMMA',
     gpt_4_llm: 'GPT-4',
     gpt_4o_llm: 'GPT-4o',
@@ -89,7 +89,7 @@ const Page = () => {
 
   const selectConversation = async (id) => {
     setConversationId(id);
-    setSelectedModel('gpt_3_llm');
+    setSelectedModel('gpt_4o_mini_llm');
     setStartingPrompt('');
     await loadConversation(id);
   };
@@ -328,7 +328,7 @@ const Page = () => {
         <h2 className="text-lg font-bold mb-2">Select Model</h2>
       )}
       <div className="max-h-[calc(100vh-150px)] overflow-y-auto">
-        {[ 'gpt_3_llm', 'Groq_llm',  'gpt_4_llm', 'gpt_4o_llm','gpt_4o_mini_llm'].map((model) => (
+        {[ 'Groq_llm',  'gpt_4_llm', 'gpt_4o_llm','gpt_4o_mini_llm'].map((model) => (
           <div
             key={model}
             className={`mb-2 text-gray-950 px-2 py-1 rounded cursor-pointer hover:bg-gray-200 focus:outline-none ${
