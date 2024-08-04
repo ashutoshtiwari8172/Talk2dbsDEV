@@ -14,7 +14,7 @@ const useAutoLogout = dynamic(() => import('../components/hooks/useAutoLogout'),
 
 const Page = () => {
   useSessionCheck();
-    useAutoLogout();
+  useAutoLogout();
   const [userInput, setUserInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(null);
@@ -26,6 +26,7 @@ const Page = () => {
   const [expanded, setExpanded] = useState(true);
   const [expandedtwo, setExpandedtwo] = useState(true);
   const [userGroups, setUserGroups] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
   const chatContainerRef = useRef(null);
 
   const router = useRouter();
@@ -35,7 +36,6 @@ const Page = () => {
   };
 
   const modelNames = {
-    
     Groq_llm: 'LAMMA',
     gpt_4_llm: 'GPT-4',
     gpt_4o_llm: 'GPT-4o',
@@ -125,30 +125,38 @@ const Page = () => {
   };
 
   const sendMessage = async (userMessage) => {
+    setIsGenerating(true);
     const token = localStorage.getItem('token');
-    const response = await fetch('https://dev.tok2dbs.com/chatbot/api/ask/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify({
-        message: userMessage,
-        database_id: databaseId,
-        conversation_id: conversationId,
-        model: selectedModel,
-        starting_prompt: startingPrompt,
-      }),
-    });
+    try {
+      const response = await fetch('https://dev.tok2dbs.com/chatbot/api/ask/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          database_id: databaseId,
+          conversation_id: conversationId,
+          model: selectedModel,
+          starting_prompt: startingPrompt,
+        }),
+      });
 
-    if (response.headers.get('Content-Type').includes('image/png')) {
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      addMessageToChat({ type: 'image', content: url }, false);
-    } else {
-      const data = await response.json();
-      setConversationId(data.conversation_id);
-      addMessageToChat(data.response, false);
+      if (response.headers.get('Content-Type').includes('image/png')) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        addMessageToChat({ type: 'image', content: url }, false);
+      } else {
+        const data = await response.json();
+        setConversationId(data.conversation_id);
+        addMessageToChat(data.response, false);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      addMessageToChat('An error occurred while generating the response.', false);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -173,9 +181,10 @@ const Page = () => {
 
   const handleSendMessage = async () => {
     if (userInput.trim()) {
-      addMessageToChat(userInput, true);
+      const userMessage = userInput;
+      addMessageToChat(userMessage, true);
       setUserInput('');
-      await sendMessage(userInput);
+      await sendMessage(userMessage);
     }
   };
 
@@ -253,7 +262,7 @@ const Page = () => {
             </div>
           )}
         </div>
-        <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto bg-white flex justify-center  text-right" style={{
+        {/* <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto bg-white flex justify-center  text-right" style={{
           msOverflowStyle: 'none',
           scrollbarWidth: 'none',
         }}>
@@ -279,6 +288,42 @@ const Page = () => {
               </div>
             </div>
             ))}
+          </div>
+        </div> */}
+        <div ref={chatContainerRef} className="flex-grow p-4 overflow-y-auto bg-white flex justify-center  text-right" style={{
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+        }}>
+          <div className="flex flex-col space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`max-w-3xl w-full flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              {!message.isUser && (
+                <Image src={bot2} alt="Bot Avatar" className="w-8 h-8 m-3 self-start rounded-full" />
+              )}
+              <div
+                className={`message p-3 rounded-lg ${
+                  message.isUser ? 'bg-gray-100 text-gray-800' : ' text-gray-800'
+                } text-left`}
+              >
+                {message.content.type === 'image' ? (
+                  <img src={message.content.content} alt="AI response" className="max-w-full" />
+                ) : (
+                  <div dangerouslySetInnerHTML={{ __html: marked(message.content) }} />
+                )}
+              </div>
+            </div>
+          ))}
+          {isGenerating && (
+            <div className="flex items-center self-start">
+            <Image src={bot2} alt="bot2" className="w-8 h-8 m-3 self-start rounded-full" />
+            <div className="p-2 rounded-lg mt-2  text-gray-800 self-start">
+              Please wait, generating response ...
+            </div>
+          </div>
+          )}
           </div>
         </div>
 
