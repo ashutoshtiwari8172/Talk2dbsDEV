@@ -149,7 +149,9 @@ const Connect2DBs = () => {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="p-4 bg-white shadow w-full">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-900">tok2dbs</div>
+        <Link href="/" legacyBehavior>
+            <a className="text-2xl font-bold text-center text-blue-900 " target='_blank'>tok2dbs</a>
+          </Link>
           <button
             className="flex items-center border border-blue-900 text-blue-900 px-4 py-2 rounded hover:border-blue-600 hover:text-blue-600 focus:outline-none focus:border-blue-600 focus:text-blue-600"
             onClick={handleLogout}
