@@ -175,7 +175,7 @@ function Login() {
       const id_token = response.credential;
       console.log('ID Token:', id_token);
 
-      const res = await fetch('https://35.238.123.118/users/google-login/', {
+      const res = await fetch('http://35.238.123.118/users/google-login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ function Login() {
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
-      setMessage('Server is down for maintenance. Please try again later.');
+      setMessage('System error. Please try again later.');
       setIsPopupVisible(true);
     }
   };
