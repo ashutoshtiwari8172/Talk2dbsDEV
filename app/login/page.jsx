@@ -124,6 +124,7 @@
 // }
 
 // export default Login;
+
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -175,7 +176,7 @@ function Login() {
       const id_token = response.credential;
       console.log('ID Token:', id_token);
 
-      const res = await fetch('http://35.238.123.118/users/google-login/', {
+      const res = await fetch('https://dev.tok2dbs.com/users/google-login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,6 +185,7 @@ function Login() {
       });
 
       const data = await res.json();
+      console.log(data);
       if (res.ok) {
         setMessage('Login successful!');
         localStorage.setItem('token', data.token);
