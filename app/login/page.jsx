@@ -128,6 +128,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -239,7 +240,9 @@ function Login() {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="p-4 bg-white shadow w-full">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-900">tok2dbs</div>
+        <Link href="/" legacyBehavior>
+            <a className="text-2xl font-bold text-center text-blue-900" target='_blank'>tok2dbs</a>
+          </Link>
         </div>
       </header>
       <div className="p-8 w-full max-w-xl mx-auto my-auto">
